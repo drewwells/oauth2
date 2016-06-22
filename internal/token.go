@@ -151,8 +151,10 @@ func RetrieveToken(ctx context.Context, ClientID, ClientSecret, TokenURL string,
 	if err != nil {
 		return nil, err
 	}
-	v.Set("client_id", ClientID)
 	bustedAuth := !providerAuthHeaderWorks(TokenURL)
+	if bustedAuth {
+		v.Set("client_id", ClientID)
+	}
 	if bustedAuth && ClientSecret != "" {
 		v.Set("client_secret", ClientSecret)
 	}
@@ -164,6 +166,7 @@ func RetrieveToken(ctx context.Context, ClientID, ClientSecret, TokenURL string,
 	if !bustedAuth {
 		req.SetBasicAuth(ClientID, ClientSecret)
 	}
+
 	r, err := hc.Do(req)
 	if err != nil {
 		return nil, err
